@@ -1,7 +1,237 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} | TaskFlow{% endblock %}
 
 {% block content %}
-  <h1>{{ task.title }}</h1>
-  <p>{{ task.description }}</p>
-  <p>Due date: {{ task.due_date }}</p>
+
+<header class="topbar">
+    <div>
+        <h1>Task Details</h1>
+        <p>View and manage your task information.</p>
+    </div>
+
+    <div class="profile">
+        <div class="profile-avatar">
+            {{ request.user.username|first|upper }}
+        </div>
+        <span>{{ request.user.username }}</span>
+    </div>
+</header>
+
+<!-- BREADCRUMB -->
+
+<div class="breadcrumb">
+    <a href="{% url 'task_list' %}">My Tasks</a>
+    <span>/</span>
+    <span>{{ task.title }}</span>
+</div>
+
+<!-- TASK HEADER -->
+
+<section class="detail-header">
+
+    <div class="detail-header-info">
+        <span class="welcome-label">TASK INFORMATION</span>
+
+        <h2>{{ task.title }}</h2>
+
+        <div class="detail-badges">
+            <span class="status-badge {{ task.status }}">
+                {{ task.get_status_display }}
+            </span>
+
+            <span class="priority-badge {{ task.priority }}">
+                {{ task.get_priority_display }} Priority
+            </span>
+        </div>
+    </div>
+
+    <div class="detail-actions">
+        <a href="{% url 'task_update' task.id %}" class="edit-task-btn">
+            Edit Task
+        </a>
+
+        <a href="{% url 'task_delete' task.id %}" class="delete-task-btn">
+            Delete
+        </a>
+    </div>
+
+</section>
+
+<!-- MAIN CONTENT -->
+
+<div class="detail-layout">
+
+    <div class="detail-main">
+
+        <!-- DESCRIPTION -->
+
+        <section class="detail-card">
+
+            <div class="detail-card-header">
+                <h3> <span>▤</span> Description</h3>
+            </div>
+
+            <div class="description-content">
+                {% if task.description %}
+                    {{ task.description|linebreaks }}
+                {% else %}
+                    <p class="muted-text">No description provided.</p>
+                {% endif %}
+            </div>
+
+        </section>
+
+        <!-- ATTACHMENT -->
+
+        <section class="detail-card">
+
+            <div class="detail-card-header">
+                <h3><span>⌁</span> Attachment</h3>
+            </div>
+
+            {% if task.attachment %}
+                <div class="attachment-item">
+                    <div class="attachment-icon">↗</div>
+
+                    <div class="attachment-info">
+                        <strong>{{ task.attachment.name|cut:"attachments/" }}</strong>
+                        <p>Attached file</p>
+                    </div>
+
+                    <a href="{{ task.attachment.url }}" target="_blank">
+                        Download
+                    </a>
+                </div>
+            {% else %}
+                <p class="muted-text">No attachments available.</p>
+            {% endif %}
+
+        </section>
+
+        <!-- COMMENTS -->
+
+        <section class="detail-card">
+
+            <div class="detail-card-header">
+                <h3><span>☰</span> Comments</h3>
+                <span class="comment-count">{{ task.comments.count }}</span>
+            </div>
+
+            <div class="comments-list">
+
+                {% for comment in task.comments.all %}
+
+                    <div class="comment-item">
+
+                        <div class="comment-avatar">
+                            {{ comment.author.username|first|upper }}
+                        </div>
+
+                        <div class="comment-content">
+
+                            <div class="comment-top">
+                                <strong>{{ comment.author.username }}</strong>
+                                <span>{{ comment.created_at|date:"M d, Y" }}</span>
+                            </div>
+
+                            <p>{{ comment.content }}</p>
+
+                            {% if comment.attachment %}
+                                <a href="{{ comment.attachment.url }}" target="_blank" class="comment-attachment">
+                                    View attachment ↗
+                                </a>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="empty-comments">
+                        <p>No comments yet.</p>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- SIDEBAR INFORMATION -->
+
+    <aside class="detail-sidebar">
+
+        <section class="detail-card">
+
+            <div class="detail-card-header">
+                <h3>Task Information</h3>
+            </div>
+
+            <div class="info-item">
+                <span>Created by</span>
+                <strong>{{ task.author.username }}</strong>
+            </div>
+
+            <div class="info-item">
+                <span>Created at</span>
+                <strong>{{ task.created_at|date:"M d, Y" }}</strong>
+            </div>
+
+            <div class="info-item">
+                <span>Last updated</span>
+                <strong>{{ task.updated_at|date:"M d, Y" }}</strong>
+            </div>
+
+            <div class="info-item">
+                <span>Completed at</span>
+                <strong>
+                    {% if task.completed_at %}
+                        {{ task.completed_at|date:"M d, Y" }}
+                    {% else %}
+                        <span class="muted-text">Not completed</span>
+                    {% endif %}
+                </strong>
+            </div>
+
+        </section>
+
+        <!-- EXECUTORS -->
+
+        <section class="detail-card">
+
+            <div class="detail-card-header">
+                <h3>Executors</h3>
+                <span class="comment-count">{{ task.executors.count }}</span>
+            </div>
+
+            <div class="executors-list">
+
+                {% for executor in task.executors.all %}
+
+                    <div class="executor-item">
+                        <div class="executor-avatar">
+                            {{ executor.username|first|upper }}
+                        </div>
+
+                        <span>{{ executor.username }}</span>
+                    </div>
+
+                {% empty %}
+
+                    <p class="muted-text">No executors assigned.</p>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </aside>
+
+</div>
+
 {% endblock %}

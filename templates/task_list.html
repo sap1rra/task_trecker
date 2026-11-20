@@ -1,10 +1,150 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}My Tasks | TaskFlow{% endblock %}
 
 {% block content %}
-  <h1>Task List</h1>
-  <ul>
-    {% for task in tasks %}
-      <li>{{ task.title }}</li>
-    {% endfor %}
-  </ul>
+
+<header class="topbar">
+    <div>
+        <h1>My Tasks</h1>
+        <p>Manage and organize all your tasks.</p>
+    </div>
+
+    <div class="profile">
+        <div class="profile-avatar">
+            {{ request.user.username|first|upper }}
+        </div>
+        <span>{{ request.user.username }}</span>
+    </div>
+</header>
+
+<section class="welcome-section">
+    <div>
+        <span class="welcome-label">YOUR WORKSPACE</span>
+        <h2>Hello, {{ request.user.username }}!</h2>
+        <p>Stay focused and get things done. One task at a time.</p>
+    </div>
+
+    <a href="#" class="add-task-btn">
+        <span>+</span> Add New Task
+    </a>
+</section>
+
+<section class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon purple">▤</span>
+            <span class="stat-label">Total Tasks</span>
+        </div>
+        <h2>{{ total_tasks }}</h2>
+        <p>All your tasks</p>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon blue">◷</span>
+            <span class="stat-label">In Progress</span>
+        </div>
+        <h2>{{ in_progress_tasks }}</h2>
+        <p>Currently working on</p>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon orange">○</span>
+            <span class="stat-label">Pending</span>
+        </div>
+        <h2>{{ pending_tasks }}</h2>
+        <p>Waiting to be started</p>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon green">✓</span>
+            <span class="stat-label">Completed</span>
+        </div>
+        <h2>{{ completed_tasks }}</h2>
+        <p>Successfully finished</p>
+    </div>
+
+</section>
+
+<section class="tasks-section">
+
+    <div class="section-header">
+        <div>
+            <h2>Recent Tasks</h2>
+            <p>Keep track of your latest activities.</p>
+        </div>
+
+        <span class="tasks-count">{{ total_tasks }} tasks</span>
+    </div>
+
+    <div class="tasks-container">
+
+        {% for task in tasks %}
+
+        <div class="task-row">
+
+            <div class="task-main">
+
+                <div class="task-status-icon
+                    {% if task.status == 'completed' %}completed-icon
+                    {% elif task.status == 'in_progress' %}progress-icon
+                    {% else %}pending-icon{% endif %}">
+
+                    {% if task.status == 'completed' %}
+                        ✓
+                    {% elif task.status == 'in_progress' %}
+                        ◷
+                    {% else %}
+                        ○
+                    {% endif %}
+
+                </div>
+
+                <div class="task-info">
+                    <h3>{{ task.title }}</h3>
+
+                    <p>
+                        {{ task.description|default:"No description provided."|truncatechars:75 }}
+                    </p>
+
+                    <span class="task-date">
+                        Created {{ task.created_at|date:"M d, Y" }}
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="task-meta">
+
+                <span class="status-badge {{ task.status }}">
+                    {{ task.get_status_display }}
+                </span>
+
+                <span class="priority-badge {{ task.priority }}">
+                    {{ task.get_priority_display }}
+                </span>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="empty-state">
+            <div class="empty-icon">▤</div>
+            <h3>No tasks yet</h3>
+            <p>Start organizing your work by creating your first task.</p>
+            <a href="#" class="add-task-btn">+ Create your first task</a>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
 {% endblock %}
