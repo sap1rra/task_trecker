@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from task_tracker_app.forms import TaskForm
 from .models import Task, Comment
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -20,6 +20,15 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     template_name = 'task_detail.html'
     context_object_name = 'task'
     
+    def post(self, request, *args, **kwargs):
+        task = self.get_object()
+        content = request.POST.get('content')
+        #attachment = request.FILES.get('attachment')
+        
+        if content:
+           task.comments.create(author=request.user, content=content)
+        return redirect('task_detail', pk=task.pk)
+        
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
     model = Task
