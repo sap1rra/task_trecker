@@ -37,6 +37,11 @@ class Comment(models.Model):
     attachment = models.FileField(upload_to='attachments/', null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     
+    
+class Meta:
+    ordering= ['-updated_at', '-created_at']
+    
+    
 #class User(models.Model):
     #username = models.CharField(max_length=50)
    # email = models.CharField(max_length=100)
